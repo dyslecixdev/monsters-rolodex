@@ -1,5 +1,7 @@
 import {Component} from 'react';
 
+import CardList from './components/card-list/card-list.component';
+import SearchBox from './components/search-box/search-box.component';
 import './App.css';
 
 class App extends Component {
@@ -12,25 +14,17 @@ class App extends Component {
 			monsters: [],
 			searchField: ''
 		};
-
-		console.log('constructor');
 	}
 
 	// Executes after the component initializes below in render.
 	componentDidMount() {
-		console.log('componentDidMount');
-
+		// API data fetch.
 		fetch('https://jsonplaceholder.typicode.com/users')
 			.then(res => res.json())
 			.then(data =>
-				this.setState(
-					() => {
-						return {monsters: data}; // Sets the API's data as the value to the monsters key in state.
-					},
-					() => {
-						console.log(this.state); // This callback function executes only after the above callback function is done.
-					}
-				)
+				this.setState(() => {
+					return {monsters: data}; // Sets the API's data as the value to the monsters key in state.
+				})
 			);
 	}
 
@@ -44,8 +38,6 @@ class App extends Component {
 
 	// Executes after the component's constructor above.
 	render() {
-		console.log('render');
-
 		const {monsters, searchField} = this.state; // Destructures the keys from state.
 		const {onSearchChange} = this; // Destructures the function from this class component.
 		// filteredMonsters takes the monsters array in state, filters out each monster (i.e. element) that has the same string as the one in the searchField (i.e. input), then returns an array.
@@ -55,16 +47,14 @@ class App extends Component {
 
 		return (
 			<div className='App'>
-				<input
-					type='search'
-					placeholder='Search for monsters'
+				<SearchBox
+					placeholder='search monsters'
 					className='search-box'
-					onChange={onSearchChange}
+					// Passes the onSearchChange function as props and renames it as onChangeHandler
+					onChangeHandler={onSearchChange}
 				/>
-				{/* Maps over each monster in the filteredMonsters array, then creates an h1 element for each one */}
-				{filteredMonsters.map(monster => {
-					return <h1 key={monster.id}>{monster.name}</h1>;
-				})}
+				{/* Passes filteredMonsters as props and renames it as monsters */}
+				<CardList monsters={filteredMonsters} />
 			</div>
 		);
 	}
