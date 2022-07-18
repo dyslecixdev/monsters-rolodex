@@ -1,65 +1,47 @@
-import {Component} from 'react';
+import {useState, useEffect} from 'react';
 
 import CardList from './components/card-list/card-list.component';
 import SearchBox from './components/search-box/search-box.component';
 
 import './App.css';
 
-class App extends Component {
-	// Class component.
-	constructor() {
-		super();
+function App() {
+	// Initializes this component's states.
+	const [monsters, setMonsters] = useState([]); // monsters is the value that holds the state which is intialized as an empty array, and setMonsters is used to change the value of monsters.
+	const [searchField, setSearchField] = useState('');
 
-		// Initializes the App's state.
-		this.state = {
-			monsters: [],
-			searchField: ''
-		};
-	}
-
-	// Executes after the component initializes below in render.
-	componentDidMount() {
-		// API data fetch.
+	// API data fetch.
+	useEffect(() => {
 		fetch('https://jsonplaceholder.typicode.com/users')
 			.then(res => res.json())
-			.then(data =>
-				this.setState(() => {
-					return {monsters: data}; // Sets the API's data as the value to the monsters key in state.
-				})
-			);
-	}
+			.then(data => setMonsters(data));
+	}, []); // The array causes useEffect to run based on whatever value inside it changes, but if it's empty then it only runs once on componentDidMount.
 
 	// When the input is changed, searchField changes to be the input's element's target's value, then sets it in its state using the shorthand for {searchField: searchField}.
-	onSearchChange = e => {
-		const searchField = e.target.value.toLocaleLowerCase();
-		this.setState(() => {
-			return {searchField};
-		});
+	const onSearchChange = e => {
+		const searchFieldString = e.target.value.toLocaleLowerCase();
+		setSearchField(searchFieldString);
 	};
 
-	// Executes after the component's constructor above.
-	render() {
-		const {monsters, searchField} = this.state; // Destructures the keys from state.
-		const {onSearchChange} = this; // Destructures the function from this class component.
-		// filteredMonsters takes the monsters array in state, filters out each monster (i.e. element) that has the same string as the one in the searchField (i.e. input), then returns an array.
-		const filteredMonsters = monsters.filter(monster => {
-			return monster.name.toLocaleLowerCase().includes(searchField);
-		});
+	// filteredMonsters is an array with each monster that has a string that matches the searchField's string.
+	const filteredMonsters = monsters.filter(monster => {
+		return monster.name.toLocaleLowerCase().includes(searchField);
+	});
 
-		return (
-			<div className='App'>
-				<h1 className='app-title'>Monsters Rolodex</h1>
-				<SearchBox
-					placeholder='search monsters'
-					className='search-box'
-					// Passes the onSearchChange function as props and renames it as onChangeHandler
-					onChangeHandler={onSearchChange}
-				/>
-				{/* Passes filteredMonsters as props and renames it as monsters */}
-				<CardList monsters={filteredMonsters} />
-			</div>
-		);
-	}
+	// What is shown in DOM.
+	return (
+		<div className='App'>
+			<h1 className='app-title'>Monsters Rolodex</h1>
+			<SearchBox
+				placeholder='search monsters'
+				className='search-box'
+				// Passes the onSearchChange function as props and renames it as onChangeHandler
+				onChangeHandler={onSearchChange}
+			/>
+			{/* Passes filteredMonsters as props and renames it as monsters */}
+			<CardList monsters={filteredMonsters} />
+		</div>
+	);
 }
 
 export default App;
